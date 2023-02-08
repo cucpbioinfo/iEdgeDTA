@@ -1,0 +1,21 @@
+biopython==1.79
+numpy==1.23.0
+pandas==1.4.3
+Pillow==9.1.1
+rdkit-pypi==2022.3.3
+scikit-learn==1.1.1
+scipy==1.8.1
+fair-esm==0.4.2
+networkx==2.8.4
+lifelines==0.27.1
+
+--find-links https://download.pytorch.org/whl/torch_stable.html
+torch==1.11.0+cu113
+
+--find-links https://data.pyg.org/whl/torch-1.11.0+cu113.html
+torch-cluster==1.6.0
+torch-geometric==2.0.4
+torch-scatter==2.0.9
+torch-sparse==0.6.13
+torch-spline-conv==1.2.1
+tqdm==4.64.0
