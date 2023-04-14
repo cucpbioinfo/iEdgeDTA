@@ -7,11 +7,11 @@ import json, pickle
 from rdkit import Chem
 from rdkit.Chem import MolFromSmiles
 from tqdm import tqdm
-from CreateDataset_graph import CreateDataset    
+from core.CreateDataset_graph import CreateDataset    
 import networkx as nx   
 import torch
 import torchdrug as td
-from collections import Dict
+from typing import Dict
 from Bio import SeqIO
 import datetime
 
@@ -21,15 +21,16 @@ def Node_Feature(mol):
     return mol.node_feature
 
 def Edge_Feature(mol):
-    # mol(Object) : predicted molecule features from SMILEs
+ # mol(Object) : predicted molecule features from SMILEs
     # return only edge feature from molecule object
     # Last dim is edge type
     e_feat = mol.edge_feature
-    # e_type = np.array(mol.edge_list[:, 2])
+    e_type = np.array(mol.edge_list[:, 2])
     # edge type one-hot
-    # e_hot = np.zeros((len(e_type), 4))
-    # e_hot[np.arange(e_type.size),e_type] = 1
-    return e_feat
+    e_hot = np.zeros((len(e_type), 4))
+    e_hot[np.arange(e_type.size),e_type] = 1
+    combine = np.concatenate((e_feat, e_hot), axis=1)
+    return combine
 
 def add_self_loop(node_list, edge_list, edge_attr):
     self_edge_index = []
@@ -68,15 +69,12 @@ def Make_feature(path="/", split='train', dataset='kiba', debug=False):
     # smile_list(List) : List of SMILEs
     # return dictionary of {SMILE sequence : its features}
 
-    if split not in ['train', 'test', 'validation']:
-        return print("Incorrect input. split should be 'train, test, or validation'")
-
     df = pd.read_csv(path + dataset + '_' + split + '.csv')
 
     print("###########################")
     print(" MAKE FEATURES ON " , split, " Dataset")
     print("###########################\n")
-    smile_list = set(np.array(df.compound_iso_smiles))
+    smile_list = set(np.array(df.compound_id))
     print("Number of unique SMILEs : ", len(smile_list))
     smile_graph = {}
 
@@ -87,18 +85,20 @@ def Make_feature(path="/", split='train', dataset='kiba', debug=False):
             smile_graph[smile] = feature  
         return smile_graph
 
-    for smile in smile_list:
+    for smile_id in smile_list:
         try:
+            smile = df[df["compound_id"] == smile_id]["compound_smiles"].values[0]
             mol = td.data.Molecule.from_smiles(smile)
             feature = Combine_feature(mol)
-            smile_graph[smile] = feature
+            smile_graph[smile_id] = feature
         except:
             # Raise from "Invalid: SMILE"
             # This should be also removed from dataframe
-            df = df.drop(df[df['compound_iso_smiles']==smile].index)
-            continue;
+            df = df.drop(df[df['compound_smiles']==smile].index)
+            continue
     # Save for utilizing as tracking in smile_graph in future process.
     save_path = path + 'processed/' + dataset + '_' + split + '.csv'
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
     df.to_csv(save_path, index=False)
     print("Saving Modified Dataframe to file . . .")
     print("Saving location : ", save_path, "\n\n")
@@ -134,7 +134,7 @@ def prot_to_graph(path="/", split='full', dataset='davis', windows=3):
     print("###########################")
     print(" MAKE PROTEIN GRAPH ON " , split, " Dataset")
     print("###########################\n")
-    prot_key = set(np.array(df.target))
+    prot_key = set(np.array(df.target_id))
     print("Number of unique Protein : ", len(prot_key))
     prot_graph = {}
 
@@ -325,11 +325,11 @@ def prepare_dataset(path='dataset/', windows=3):
     print("Data prepared, Graph processing in progress . . .\n\n")
 
     path = 'dataset/'
-    smile_graph = Make_feature(path = path, debug=False) #This process will skip missing SMILES
-    prot_graph = prot_to_graph(path = path, windows=windows)
+    smile_graph = Make_feature(path = path, split="pair", dataset="dta", debug=False) #This process will skip missing SMILES
+    prot_graph = prot_to_graph(path = path, split="pair", dataset="dta", windows=windows)
     
     print("#####################################################################################\n\n")
-    df = pd.read_csv('dataset/' + 'processed/' + 'dta_pair_processed.csv')
+    df = pd.read_csv('dataset/' + 'processed/' + 'dta_pair.csv')
     train_drugs = list(df.compound_id)
     train_prots = list(df.target_id)
     inference_drugs, inference_prots = np.asarray(train_drugs), np.asarray(train_prots)

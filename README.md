@@ -1,7 +1,18 @@
 # iEdgeDTA
 Integrated edge information and 1D graph convolutional neural networks for binding affinity prediction
 
-### Update 09 Feb 2023
+### Update Apr 2023
+
+Currently source code is in very hard coding manners. we will fix and refactor this later for the ease of used.
+
+For training dataset. please refer to [DeepDTA](https://github.com/hkmztrk/DeepDTA/blob/master/data/README.md)
+
+TODO
+
+There is a huge conflict between training code and inference code that use the same util function that made the current version support only inference.
+
+- [ ] Make it trainable
+- [ ] Refactoring all code
 
 ## Inference pipeline
 
