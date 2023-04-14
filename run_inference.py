@@ -28,14 +28,14 @@ def RUN_INFERENCE(inference_data, device):
 
     model, model_st = GET_MODEL()
     model = model.to(device)
-    model.load_state_dict(torch.load("models/model_edgeGCN.model"))
+    model.load_state_dict(torch.load("weights/model_edgeGCNNet_withEdge_FOLD1.model"))
 
     data_loader = LOAD_DATA(data=inference_data, batch_size=1)
     
     print("Inferencing . . . .\n")
     
     aff_pred = inference(model, device, data_loader)
-    csv_path = f"dataset/processed/dta_pair_processed.csv"
+    csv_path = f"dataset/processed/dta_pair.csv"
     save_path = f"dataset/"
     WRITE_CSV(csv_path, save_path, aff_pred)
 

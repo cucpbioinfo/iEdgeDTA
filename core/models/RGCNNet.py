@@ -1,8 +1,7 @@
 import torch
 import torch.nn as nn
 from torch_geometric.nn import GraphNorm ,GCNConv, RGCNConv, global_mean_pool as gep, global_max_pool as gmp
-from import_layers import GCNEdgeConv
-from layers import GraphConv
+from core.layers import GraphConv
 
 class RGCNNet(torch.nn.Module):
     def __init__(self, n_output=1, num_features_xd=69, num_features_xt=33, latent_dim=128, output_dim=128, dropout=0.2):

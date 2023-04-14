@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from torch_geometric.nn import GraphNorm ,GCNConv, global_mean_pool as gep, global_max_pool as gmp
-from layers import GraphConv
+from core.layers import GraphConv
 
 # Global CONCATENATION
 # Double GCN based model

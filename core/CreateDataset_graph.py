@@ -5,8 +5,8 @@ from torch_geometric import data as DATA
 import torch
 
 class CreateDataset(InMemoryDataset):
-    def __init__(self, root='/', dataset='kiba', drugList=None, protkey=None, y=None,
-                 transform=None, pre_transform=None, smile_graph=None, protein_graph=None):
+    def __init__(self, root='/', dataset='kiba', drugList=None, protkey=None, 
+                transform=None, pre_transform=None, smile_graph=None, protein_graph=None):
         # root is required for save preprocessed data, default is '/tmp'
         super(CreateDataset, self).__init__(root, transform, pre_transform)
 
@@ -17,7 +17,7 @@ class CreateDataset(InMemoryDataset):
             self.data, self.slices = torch.load(self.processed_paths())
         else:
             print('Pre-processed data {} not found, doing pre-processing...'.format(self.processed_paths()))
-            self.process(drugList=drugList, protkey=protkey, y=y, smile_graph=smile_graph, protein_graph=protein_graph)
+            self.process(drugList=drugList, protkey=protkey, smile_graph=smile_graph, protein_graph=protein_graph)
             #self.data, self.slices = torch.load(self.processed_paths())
 
     def processed_paths(self, filenames="mol"):
@@ -34,9 +34,9 @@ class CreateDataset(InMemoryDataset):
         if not os.path.exists(self.processed_dir):
             os.makedirs(self.processed_dir)
 
-    def process(self, drugList, protkey, y, smile_graph, protein_graph):
+    def process(self, drugList, protkey, smile_graph, protein_graph):
         # Read data into huge `Data` list.
-        assert(len(drugList) == len(protkey) and len(protkey) == len(y)), "InputFailed: Drug lists, Protein lists and target lists must be the same length"
+        assert(len(drugList) == len(protkey)), "InputFailed: Drug lists and Protein lists must be the same length"
 
         data_list_mol = []
         data_list_prot = []
@@ -47,19 +47,19 @@ class CreateDataset(InMemoryDataset):
                 print("Converting to Graph Dataset : {}/{}".format(i+1, data_len))
             smile = drugList[i]
             protein = protkey[i]
-            label = y[i]
+
             # Extract drug features from SMILE graph (Dictionary)
             node_feature, edge_feature, adj_list, edge_type = smile_graph[smile]
             c_size = len(node_feature)
 
             # Extract Protein features from Protein graph (Dictionary)
             p_size, prot_feature, prot_adj_list, prot_global_feature = protein_graph[protein]
-        
+                        
             GCNData_mol = DATA.Data(x=torch.Tensor(np.array(node_feature)),
                                 edge_attr=torch.Tensor(np.array(edge_feature)),
                                 edge_index=torch.LongTensor(np.array(adj_list)).transpose(1, 0),
                                 edge_type=torch.Tensor(np.array(edge_type)),
-                                y=torch.FloatTensor([label])
+                                compound_id=str(smile)
                                 )
             GCNData_mol.__setitem__('c_size', torch.LongTensor([c_size]))
 
@@ -67,11 +67,10 @@ class CreateDataset(InMemoryDataset):
             GCNData_prot = DATA.Data(x=torch.Tensor(prot_feature), 
                                 edge_index=torch.LongTensor(np.array(prot_adj_list)).transpose(1, 0),
                                 x_global=torch.Tensor(np.array(prot_global_feature)),
-                                y=torch.FloatTensor([label])
+                                target_id=str(protein)
                                 )
             GCNData_prot.__setitem__('p_size', torch.LongTensor([p_size]))
             ##################################################################################################
-
 
             # Append graph data to data list
             data_list_mol.append(GCNData_mol)
