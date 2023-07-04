@@ -3,6 +3,7 @@ import os
 from core.emetrics import *
 from torch_geometric.data import Batch
 import time
+from tqdm.auto import tqdm
 
 def train(model, device, train_loader, optimizer, criterion, epoch):
     total_loss = 0
@@ -62,7 +63,7 @@ def inference(model, device, data_loader):
     model.eval()
     total_preds = torch.Tensor()
     with torch.no_grad():
-        for data in data_loader:
+        for data in tqdm(data_loader):
             data_mol = data[0].to(device)
             data_prot = data[1].to(device)
             pred = model(data_mol, data_prot)
