@@ -23,6 +23,7 @@ def WRITE_CSV(get_path, save_path, pred):
     df = pd.read_csv(get_path)
     df["affinity_score"] = pred
     df.to_csv(f'{save_path}/prediction.csv', index=False)
+    return f'{save_path}/prediction.csv'
 
 def RUN_INFERENCE(inference_data, device):
 
@@ -36,10 +37,11 @@ def RUN_INFERENCE(inference_data, device):
     
     aff_pred = inference(model, device, data_loader)
     csv_path = f"dataset/processed/dta_pair.csv"
-    save_path = f"dataset/"
-    WRITE_CSV(csv_path, save_path, aff_pred)
+    save_path = f"dataset"
+    output = WRITE_CSV(csv_path, save_path, aff_pred)
 
     print("\n. . . Inferencing Complete . . .\n")
+    print(f"Prediction result : {output}")
 
 if __name__=="__main__":
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

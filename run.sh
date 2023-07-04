@@ -1,3 +1,4 @@
 #!/bin/bash
-python emb_esm.py pretrained/esm1v_t33_650M_UR90S_1.pt dataset/original/sample_proteins.fasta dataset/esm_emb/
+# change pretrained/esm1v_t33_650M_UR90S_1.pt to esm1v_t33_650M_UR90S_1 if you want it download automatically.
+python emb_esm.py pretrained/esm1v_t33_650M_UR90S_1.pt dataset/original/proteins.fasta dataset/esm_emb/
 python run_inference.py

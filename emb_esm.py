@@ -3,6 +3,7 @@ import pathlib
 import numpy as np
 import torch
 from esm import Alphabet, FastaBatchedDataset, ProteinBertModel, pretrained
+from tqdm.auto import tqdm
 
 def create_parser():
     parser = argparse.ArgumentParser(
@@ -27,6 +28,7 @@ def create_parser():
     return parser
 
 def main(args):
+    print("Load model")
     model, alphabet = pretrained.load_model_and_alphabet(args.model_location)
     batch_converter = alphabet.get_batch_converter()
     model.eval()
@@ -39,7 +41,7 @@ def main(args):
     args.output_dir.mkdir(parents=True, exist_ok=True)
 
     
-    for idx in range(len(dataset)):
+    for idx in tqdm(range(len(dataset))):
         data_list = []
         data_list.append(dataset[idx])
         batch_labels, batch_strs, batch_tokens = batch_converter(data_list)
@@ -55,6 +57,7 @@ def main(args):
             args.output_file.parent.mkdir(parents=True, exist_ok=True)
             result = {"label": batch_labels[0]}
             result["representations"] = out[:, 1:len(batch_strs[0])+1, :] 
+            result["sequence_repr"] = out[:, 1:len(batch_strs[0])+1, :].mean(axis=1)
             torch.save(
                 result,
                 args.output_file,
@@ -82,6 +85,7 @@ def main(args):
             args.output_file.parent.mkdir(parents=True, exist_ok=True)
             result = {"label": batch_labels[0]}
             result["representations"] = out[:, 1:len(batch_strs[0])+1, :]
+            result["sequence_repr"] = out[:, 1:len(batch_strs[0])+1, :].mean(axis=1)
             torch.save(
                 result,
                 args.output_file,
