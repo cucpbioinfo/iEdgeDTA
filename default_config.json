@@ -1,0 +1,13 @@
+{
+    "filename" : "GCNNet_davis_fold0",
+    "dataset" : "davis",
+    "dataset_path" : "dataset/",
+    "FOLD" : 0,
+    "protein_feature_dir" : "dataset/protein_feature/",
+    "BATCH_SIZE" : 128,
+    "NUM_EPOCHS" : 1000,
+    "max_lr" : 0.001,
+    "lr" : 0.001,
+    "windows" : 3,
+    "RESUME_TRAIN" : false
+}
