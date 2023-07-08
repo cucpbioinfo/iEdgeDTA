@@ -1,9 +1,0 @@
-filename = 'GCNNet_davis_fold0'
-dataset = 'davis'
-BATCH_SIZE = 128
-NUM_EPOCHS = 1000
-max_lr = 0.001
-lr = 0.001
-FOLD = 0
-windows = 3
-RESUME_TRAIN = False
