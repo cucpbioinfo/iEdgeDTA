@@ -22,6 +22,7 @@ Create virtual environment for python=3.8.0
 `conda create -n "${env_name}" python=3.8.0`
 
 `conda activate "${env_name}"`
+
 install require package simply run
 
 `pip3 install -r requirement.txt`
